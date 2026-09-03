@@ -35,7 +35,12 @@ function SafeLine() {
     c2: false,
     exit: false,
   });
-  const [exitFade, setExitFade] = useState(false);
+  const [faded, setFaded] = useState<Record<LineKey, boolean>>({
+    entry: false,
+    c1: false,
+    c2: false,
+    exit: false,
+  });
   const [popped, setPopped] = useState<[boolean, boolean, boolean]>([false, false, false]);
   const [result, setResult] = useState<Analysis | null>(null);
   const [showCards, setShowCards] = useState(false);
@@ -56,7 +61,7 @@ function SafeLine() {
     setRunning(true);
     setResult(null);
     setShowCards(false);
-    setExitFade(false);
+    setFaded({ entry: false, c1: false, c2: false, exit: false });
     setPopped([false, false, false]);
     setLines({ entry: false, c1: false, c2: false, exit: false });
 
@@ -65,13 +70,16 @@ function SafeLine() {
       setResult(analysis);
       setPopped([true, false, false]);
     });
+    at(1400, () => setFaded((f) => ({ ...f, entry: true })));
     at(1700, () => setLines((l) => ({ ...l, c1: true })));
     at(2500, () => setPopped([true, true, false]));
+    at(2900, () => setFaded((f) => ({ ...f, c1: true })));
     at(3200, () => setLines((l) => ({ ...l, c2: true })));
     at(4000, () => setPopped([true, true, true]));
-    at(4400, () => setLines((l) => ({ ...l, exit: true })));
-    at(5000, () => setExitFade(true));
-    at(5800, () => {
+    at(4400, () => setFaded((f) => ({ ...f, c2: true })));
+    at(4600, () => setLines((l) => ({ ...l, exit: true })));
+    at(5200, () => setFaded((f) => ({ ...f, exit: true })));
+    at(5900, () => {
       setShowCards(true);
       setRunning(false);
     });
@@ -133,7 +141,7 @@ function SafeLine() {
 
         {/* Pipeline */}
         <section className="sl-pipeline">
-          <Line active={lines.entry} flow="0.7s" rainbow="sl-rainbow-1" kind="entry" />
+          <Line active={lines.entry} flow="0.7s" rainbow="sl-rainbow-1" kind="entry" faded={faded.entry} />
           <Node
             label="Toxicity"
             idle="1"
@@ -141,7 +149,7 @@ function SafeLine() {
             glyph="✓"
             colorClass={toxClass}
           />
-          <Line active={lines.c1} flow="0.8s" rainbow="sl-rainbow-2" kind="conn" />
+          <Line active={lines.c1} flow="0.8s" rainbow="sl-rainbow-2" kind="conn" faded={faded.c1} />
           <Node
             label="Sentiment"
             idle="2"
@@ -149,7 +157,7 @@ function SafeLine() {
             glyph="✓"
             colorClass={sentClass}
           />
-          <Line active={lines.c2} flow="0.8s" rainbow="sl-rainbow-3" kind="conn" />
+          <Line active={lines.c2} flow="0.8s" rainbow="sl-rainbow-3" kind="conn" faded={faded.c2} />
           <Node
             label="Verdict"
             idle="3"
@@ -162,8 +170,9 @@ function SafeLine() {
             flow="0.6s"
             rainbow="sl-rainbow-4"
             kind="exit"
-            faded={exitFade}
+            faded={faded.exit}
           />
+
         </section>
 
         {showCards && result && <Cards result={result} />}
