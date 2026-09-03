@@ -1,6 +1,7 @@
 SafeLine
 
 A product by Zaid Kazi
+
 🚀 Try it live
 
 👉 https://safe-line-visualizer.lovable.app
