@@ -35,7 +35,12 @@ function SafeLine() {
     c2: false,
     exit: false,
   });
-  const [exitFade, setExitFade] = useState(false);
+  const [faded, setFaded] = useState<Record<LineKey, boolean>>({
+    entry: false,
+    c1: false,
+    c2: false,
+    exit: false,
+  });
   const [popped, setPopped] = useState<[boolean, boolean, boolean]>([false, false, false]);
   const [result, setResult] = useState<Analysis | null>(null);
   const [showCards, setShowCards] = useState(false);
@@ -56,7 +61,7 @@ function SafeLine() {
     setRunning(true);
     setResult(null);
     setShowCards(false);
-    setExitFade(false);
+    setFaded({ entry: false, c1: false, c2: false, exit: false });
     setPopped([false, false, false]);
     setLines({ entry: false, c1: false, c2: false, exit: false });
 
@@ -65,13 +70,16 @@ function SafeLine() {
       setResult(analysis);
       setPopped([true, false, false]);
     });
+    at(1400, () => setFaded((f) => ({ ...f, entry: true })));
     at(1700, () => setLines((l) => ({ ...l, c1: true })));
     at(2500, () => setPopped([true, true, false]));
+    at(2900, () => setFaded((f) => ({ ...f, c1: true })));
     at(3200, () => setLines((l) => ({ ...l, c2: true })));
     at(4000, () => setPopped([true, true, true]));
-    at(4400, () => setLines((l) => ({ ...l, exit: true })));
-    at(5000, () => setExitFade(true));
-    at(5800, () => {
+    at(4400, () => setFaded((f) => ({ ...f, c2: true })));
+    at(4600, () => setLines((l) => ({ ...l, exit: true })));
+    at(5200, () => setFaded((f) => ({ ...f, exit: true })));
+    at(5900, () => {
       setShowCards(true);
       setRunning(false);
     });
